@@ -3,5 +3,16 @@
 ################################################################################
 
 /.vs
-/obj
-/bin/Debug/net8.0
+/AmazonScraper/obj
+/AmazonScraper/bin/Debug/net8.0
+/AmazonScraper/obj
+/AmazonScraper.Core/bin/Debug/net8.0
+/AmazonScraper.Core/obj
+/AmazonScraper.Shared/bin/Debug/net8.0
+/AmazonScraper.Shared/obj
+/AmazonScraper.Infrastructure/bin/Debug/net8.0
+/AmazonScraper.Infrastructure/obj
+/AmazonScraper.Application/bin/Debug/net8.0
+/AmazonScraper.Application/obj
+/AmazonScraper.Tests/bin/Debug/net8.0
+/AmazonScraper.Tests/obj
