@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35931.197
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AmazonScraper.Api", "AmazonScraper\AmazonScraper.Api.csproj", "{F4354D99-4E03-40A8-8EDB-8CCB874902C7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AmazonScraper.Core", "AmazonScraper.Core\AmazonScraper.Core.csproj", "{5525BC81-41BC-4C6D-B5C3-D8650B589137}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AmazonScraper.Infrastructure", "AmazonScraper.Infrastructure\AmazonScraper.Infrastructure.csproj", "{73D14FE8-C8D3-47DE-AB51-945F8DEC6038}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AmazonScraper.Shared", "AmazonScraper.Shared\AmazonScraper.Shared.csproj", "{3B3FB66D-BCC9-4897-A804-FFC7CAAE7D4B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AmazonScraper.Tests", "AmazonScraper.Tests\AmazonScraper.Tests.csproj", "{56DE7121-9206-474B-A613-3F7C3D33E4D1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AmazonScraper.Application", "AmazonScraper.Application\AmazonScraper.Application.csproj", "{4638C068-DA2F-44EB-8CF4-5D9F7811AFA2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F4354D99-4E03-40A8-8EDB-8CCB874902C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F4354D99-4E03-40A8-8EDB-8CCB874902C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F4354D99-4E03-40A8-8EDB-8CCB874902C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F4354D99-4E03-40A8-8EDB-8CCB874902C7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5525BC81-41BC-4C6D-B5C3-D8650B589137}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5525BC81-41BC-4C6D-B5C3-D8650B589137}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5525BC81-41BC-4C6D-B5C3-D8650B589137}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5525BC81-41BC-4C6D-B5C3-D8650B589137}.Release|Any CPU.Build.0 = Release|Any CPU
+		{73D14FE8-C8D3-47DE-AB51-945F8DEC6038}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{73D14FE8-C8D3-47DE-AB51-945F8DEC6038}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{73D14FE8-C8D3-47DE-AB51-945F8DEC6038}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{73D14FE8-C8D3-47DE-AB51-945F8DEC6038}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B3FB66D-BCC9-4897-A804-FFC7CAAE7D4B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B3FB66D-BCC9-4897-A804-FFC7CAAE7D4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B3FB66D-BCC9-4897-A804-FFC7CAAE7D4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B3FB66D-BCC9-4897-A804-FFC7CAAE7D4B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{56DE7121-9206-474B-A613-3F7C3D33E4D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56DE7121-9206-474B-A613-3F7C3D33E4D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56DE7121-9206-474B-A613-3F7C3D33E4D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56DE7121-9206-474B-A613-3F7C3D33E4D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4638C068-DA2F-44EB-8CF4-5D9F7811AFA2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4638C068-DA2F-44EB-8CF4-5D9F7811AFA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4638C068-DA2F-44EB-8CF4-5D9F7811AFA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4638C068-DA2F-44EB-8CF4-5D9F7811AFA2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DC3A3C5D-7568-47D2-A38C-8283DFC1350E}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,11 @@
+C:\Users\HP\source\repos\AmazonScraper\AmazonScraper.Core\bin\Debug\net8.0\AmazonScraper.Core.deps.json
+C:\Users\HP\source\repos\AmazonScraper\AmazonScraper.Core\bin\Debug\net8.0\AmazonScraper.Core.dll
+C:\Users\HP\source\repos\AmazonScraper\AmazonScraper.Core\bin\Debug\net8.0\AmazonScraper.Core.pdb
+C:\Users\HP\source\repos\AmazonScraper\AmazonScraper.Core\obj\Debug\net8.0\AmazonScraper.Core.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\HP\source\repos\AmazonScraper\AmazonScraper.Core\obj\Debug\net8.0\AmazonScraper.Core.AssemblyInfoInputs.cache
+C:\Users\HP\source\repos\AmazonScraper\AmazonScraper.Core\obj\Debug\net8.0\AmazonScraper.Core.AssemblyInfo.cs
+C:\Users\HP\source\repos\AmazonScraper\AmazonScraper.Core\obj\Debug\net8.0\AmazonScraper.Core.csproj.CoreCompileInputs.cache
+C:\Users\HP\source\repos\AmazonScraper\AmazonScraper.Core\obj\Debug\net8.0\AmazonScraper.Core.dll
+C:\Users\HP\source\repos\AmazonScraper\AmazonScraper.Core\obj\Debug\net8.0\refint\AmazonScraper.Core.dll
+C:\Users\HP\source\repos\AmazonScraper\AmazonScraper.Core\obj\Debug\net8.0\AmazonScraper.Core.pdb
+C:\Users\HP\source\repos\AmazonScraper\AmazonScraper.Core\obj\Debug\net8.0\ref\AmazonScraper.Core.dll

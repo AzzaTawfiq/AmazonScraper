@@ -1,0 +1,6 @@
+@AmazonScraper_HostAddress = http://localhost:5098
+
+GET {{AmazonScraper_HostAddress}}/api/products/
+Accept: application/json
+
+###
