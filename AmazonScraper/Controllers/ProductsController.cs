@@ -19,13 +19,19 @@ namespace AmazonScraper.Api.Controllers
         [HttpGet]
         public async Task<List<Product>> Get()
         {
-            return await _productService.ScrapeAmazonProductAsync();
+            return await _productService.GetProductAsync();
         }
 
         [HttpGet("search")]
         public async Task<List<Product>> Search([FromQuery] string? query, [FromQuery] int page = 1, [FromQuery] bool refresh = false)
         {
-            return await _productService.ScrapeAmazonProductsAllPagesAsync(query, page, refresh);
+            return await _productService.GetProductsbyPageAsync(query, page, refresh);
+        }
+
+        [HttpGet("getProductbyPageAsync")]
+        public async Task<Product> GetProductbyPageAsync([FromQuery] string asin)
+        {
+            return await _productService.GetProductbyASINAsync(asin);
         }
     }
 }

@@ -18,6 +18,9 @@ builder.Services.AddControllers();
 builder.Services.AddOptions<AmazonSelectorOptions>()
     .BindConfiguration("AmazonSelectors");
 
+builder.Services.AddOptions<AmazonURL>()
+    .BindConfiguration("AmazonURL");
+
 // 1. Define a unique string for your policy name
 string myAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
@@ -46,7 +49,6 @@ builder.Services.AddDistributedPostgresCache(options =>
 // Register the IExceptionHandler and the native ProblemDetails infrastructure
 builder.Services.AddExceptionHandler<ScraperExceptionHandler>();
 builder.Services.AddProblemDetails(); // Generates metadata for structural error support
-
 
 var app = builder.Build();
 

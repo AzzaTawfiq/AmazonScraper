@@ -10,7 +10,7 @@ namespace AmazonScraper.Core.Interfaces
     public interface IScraperService
     {
         Task<List<Product>> ScrapeAmazonProductAsync();
-        Task<List<Product>> ScrapeAmazonProductsAllPagesAsync(string? query, int page = 1);
         Task<List<Product>> ScrapeAmazonProductsbyPageAsync(string? query, int page = 1);
+        Task<Product> ScrapeAmazonProductbyASINAsync(string asin);
     }
 }

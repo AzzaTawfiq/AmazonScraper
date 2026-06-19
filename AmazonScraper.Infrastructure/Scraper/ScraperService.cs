@@ -1,47 +1,35 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Net.Http;
-using HtmlAgilityPack;
+﻿using HtmlAgilityPack;
 using AmazonScraper.Core.Interfaces;
-using static System.Net.Mime.MediaTypeNames;
 using AmazonScraper.Core.Entities;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using System.ComponentModel;
-using System.Reflection.Metadata;
 using System.Globalization;
 using AmazonScraper.Shared.Common;
 using Microsoft.Extensions.Options;
-using AmazonScraper.Shared.DTOs;
-using System.Net;
-using AmazonScraper.Shared.Exceptions;
+using System.Reflection.Metadata;
+using System.Xml.Linq;
 
 namespace AmazonScraper.Infrastructure.Scraper
 {
     public class ScraperService : IScraperService
     {
-        private static readonly List<string> UserAgents = new()
-        {
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2.1 Safari/605.1.15",
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/121.0"
-        };
+        private readonly IClientHandler _clientHandler;
         private readonly IOptions<AmazonSelectorOptions> _amazonSelectorOptions;
-        public ScraperService(IOptions<AmazonSelectorOptions> amazonSelectorOptions)
+        private readonly IOptions<AmazonURL> _amazonURL;
+        public ScraperService(IClientHandler clientHandler, IOptions<AmazonSelectorOptions> amazonSelectorOptions, IOptions<AmazonURL> amazonURL)
         {
+            _clientHandler = clientHandler;
             _amazonSelectorOptions = amazonSelectorOptions;
+            _amazonURL = amazonURL;
         }
 
+        #region search
         public async Task<List<Product>> ScrapeAmazonProductAsync()
         {
             try
             {
                 // 1. get url
-                string url = getUrl();
+                string url = getPageUrl();
                 // 2. get data from amazon
-                string htmlContent = await getDatafromAmazon(url);
+                string htmlContent = await _clientHandler.getHTMLData(url);
                 // 3. get html Document
                 var htmlDoc = getHtmlDoc(htmlContent);
                 // 3. Extract data fields safely using CSS/XPath selectors
@@ -55,50 +43,11 @@ namespace AmazonScraper.Infrastructure.Scraper
                 return null;
             }
         }
-
-        public async Task<List<Product>> ScrapeAmazonProductsAllPagesAsync(string? query, int page = 1)
-        {
-            var products = new List<Product>();
-
-            string? currentUrl = getSearchUrl(query);
-
-            while (!string.IsNullOrEmpty(currentUrl))
-            {
-                var html = await getDatafromAmazon(currentUrl);
-
-                var document = getHtmlDoc(html);
-
-                var productsPage = extractDataFields(document);
-                if (productsPage?.Count > 0)
-                    products.AddRange(productsPage);
-
-                var nextPageNode = document.DocumentNode.SelectSingleNode(
-                    "//a[contains(@class,'s-pagination-next') and not(contains(@class,'s-pagination-disabled'))]"
-                );
-
-                if (nextPageNode == null)
-                    break;
-
-                var href = nextPageNode.GetAttributeValue("href", null);
-
-                if (string.IsNullOrWhiteSpace(href))
-                    break;
-
-                currentUrl = href.StartsWith("http")
-                    ? href
-                    : $"https://www.amazon.com{href}";
-
-                await Task.Delay(Random.Shared.Next(3000, 5000));
-            }
-
-            return products;
-        }
-
         public async Task<List<Product>> ScrapeAmazonProductsbyPageAsync(string? query, int page = 1)
         {
             string? currentUrl = getPageUrl(query, page);
 
-            var html = await getDatafromAmazon(currentUrl);
+            var html = await _clientHandler.getHTMLData(currentUrl);
 
             var document = getHtmlDoc(html);
 
@@ -108,98 +57,40 @@ namespace AmazonScraper.Infrastructure.Scraper
 
             return products;
         }
-        private string getUrl()
-        {
-            // Example Amazon Product URL (Replace with your targeted URL)
-            string url = "https://www.amazon.com/s?k=all&ref=nb_sb_noss";
-            //"https://www.amazon.com/s?i=specialty-aps&bbn=16225007011&rh=n%3A16225007011%2Cn%3A13896617011&ref=nav_em__nav_desktop_sa_intl_computers_tablets_0_2_7_4"; 
-            //"https://amazon.com";
-            return url;
-        }
-        private string getSearchUrl(string query)
+        private string getPageUrl(string? query = null, int page = 1)
         {
             if (string.IsNullOrWhiteSpace(query))
                 query = "all";
             string modifiedQuery = query?.Replace(" ", "+");
-            string url = "https://www.Amazon.com/s?k=" + modifiedQuery + "&ref=nb_sb_noss";
+            string url = _amazonURL.Value.SearchURL + modifiedQuery + "" + "&page=" + page;
             return url;
-        }
-        private string getPageUrl(string query, int page)
-        {
-            if (string.IsNullOrWhiteSpace(query))
-                query = "all";
-            string modifiedQuery = query?.Replace(" ", "+");
-            string url = "https://www.Amazon.com/s?k=" + modifiedQuery + "&ref=nb_sb_noss"+ "&page=" + page;
-            return url;
-        }
-        private async Task<string> getDatafromAmazon(string url)
-        {
-            // 1. Fetch HTML from Amazon
-            var handler = new HttpClientHandler
-            {
-                AutomaticDecompression = System.Net.DecompressionMethods.GZip | System.Net.DecompressionMethods.Deflate
-            };
-
-            using var client = new HttpClient(handler);
-
-            // 1. Setup Request headers to bypass fundamental bot detection
-            var random = new Random();
-            client.DefaultRequestHeaders.Clear();
-            client.DefaultRequestHeaders.Add("User-Agent", UserAgents[random.Next(UserAgents.Count)]);
-            client.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8");
-            client.DefaultRequestHeaders.Add("Accept-Language", "en-US,en;q=0.9");
-            client.DefaultRequestHeaders.Add("Accept-Encoding", "gzip, deflate, br");
-            client.DefaultRequestHeaders.Add("Sec-Ch-Ua", "\"Not_A Brand\";v=\"8\", \"Chromium\";v=\"120\", \"Google Chrome\";v=\"120\"");
-
-            var response = await client.GetAsync(url);
-            if (response.StatusCode != HttpStatusCode.OK)
-            {
-                if (response.StatusCode == HttpStatusCode.Forbidden)
-                {
-                    // Proxy was flagged or Amazon served a CAPTCHA challenge
-                    throw new AmazonCaptchaException("Access denied by Amazon. Bot protection page served instead of product markup.");
-                }
-
-                if (response.StatusCode == HttpStatusCode.NotFound)
-                {
-                    throw new ProductNotFoundException("");
-                }
-            }
-            return await response.Content.ReadAsStringAsync();
-        }
-        private HtmlDocument getHtmlDoc(string htmlContent)
-        {
-            // 1. Load HTML into HtmlAgilityPack Document
-            var htmlDoc = new HtmlDocument();
-            htmlDoc.LoadHtml(htmlContent);
-
-            return htmlDoc;
         }
         private List<Product> extractDataFields(HtmlDocument htmlDoc)
         {
             var products = new List<Product>();
 
             var productNodes = htmlDoc.DocumentNode
-                .SelectNodes("//*[@data-component-type='s-search-result']");
+                .SelectNodes(_amazonSelectorOptions.Value.DataComponent);
 
             if (productNodes == null)
                 return null;
 
             foreach (var node in productNodes)
             {
-                (decimal?, string?) priceTuple = GetPrice(node);
+                (decimal?, string?) priceTuple = GetPrice(node, _amazonSelectorOptions.Value.Price);
 
                 var product = new Product
                 {
                     ASIN = node.GetAttributeValue("data-asin", null),
-                    Title = GetTitle(node),
+                    Title = GetTitle(node, _amazonSelectorOptions.Value.Title),
                     OriginalPrice = priceTuple.Item1 ?? 0,
                     Price = priceTuple.Item1 ?? 0,
                     Currency = priceTuple.Item2,
-                    Rating = GetRating(node),
-                    TotalReviews = GetReviewCount(node),
-                    URL = GetProductUrl(node),
-                    Image = GetImageUrl(node)
+                    Rating = GetRating(node, _amazonSelectorOptions.Value.Rating),
+                    TotalReviews = GetReviewCount(node, _amazonSelectorOptions.Value.ReviewCount),
+                    URL = GetProductUrl(node, _amazonSelectorOptions.Value.ProductURL),
+                    Image = GetImageUrl(node, _amazonSelectorOptions.Value.MainProductImageURL),
+                    IsPrime = GetIsPrime(node, _amazonSelectorOptions.Value.IsPrime)
                 };
 
                 products.Add(product);
@@ -208,114 +99,91 @@ namespace AmazonScraper.Infrastructure.Scraper
             return products;
         }
 
-        private string? GetTitle(HtmlNode node)
+        private string? GetTitle(HtmlNode node, List<string> selectors)
         {
-            List<string> selectors = _amazonSelectorOptions.Value.Title.ToList();
-            foreach (var selector in selectors)
-            {
-                var result = node.SelectSingleNode(selector);
-
-                if (result != null)
-                    return result.InnerText?.Trim();
-            }
+            var result = ExtractValue(node, selectors);
+            if (result != null)
+                return result.InnerText?.Trim();
 
             return null;
         }
 
-        private (decimal?, string?) GetPrice(HtmlNode node)
+        private (decimal?, string?) GetPrice(HtmlNode node, List<string> selectors)
         {
-            List<string> selectors = _amazonSelectorOptions.Value.Price.ToList();
-            foreach (var selector in selectors)
+            var result = ExtractValue(node, selectors);
+            if (result != null)
             {
-                var result = node.SelectSingleNode(selector);
+                string priceString = result.InnerText?.Trim();
+                string currencyOnly = priceString.Substring(0, 3);
+                string priceOnly = priceString.Substring(4, priceString.Length - 4);
 
-                if (result != null)
+                if (decimal.TryParse(
+                        priceOnly,
+                        NumberStyles.Any,
+                        CultureInfo.InvariantCulture,
+                        out var price))
                 {
-                    string priceString = result.InnerText?.Trim();
-                    string currencyOnly = priceString.Substring(0, 3);
-                    string priceOnly = priceString.Substring(4, priceString.Length - 4);
-
-                    if (decimal.TryParse(
-                            priceOnly,
-                            NumberStyles.Any,
-                            CultureInfo.InvariantCulture,
-                            out var price))
-                    {
-                        return (price, currencyOnly);
-                    }
+                    return (price, currencyOnly);
                 }
             }
 
             return (0, "");
         }
 
-        private string? GetRating(HtmlNode node)
+        private string? GetRating(HtmlNode node, List<string> selectors)
         {
-            List<string> selectors = _amazonSelectorOptions.Value.Rating.ToList();
-            foreach (var selector in selectors)
-            {
-                var result = node.SelectSingleNode(selector);
+            var result = ExtractValue(node, selectors);
+            if (result != null)
+                return result.InnerText?.Trim();
 
-                if (result != null)
-                    return result.InnerText?.Trim();
+            return null;
+        }
+
+        private string? GetReviewCount(HtmlNode node, List<string> selectors)
+        {
+            var result = ExtractValue(node, selectors);
+            if (result != null)
+                return result.InnerText?.Trim();
+
+            return null;
+        }
+
+        private string? GetProductUrl(HtmlNode node, List<string> selectors)
+        {
+            var result = ExtractValue(node, selectors);
+            if (result != null)
+            {
+                var href = result.GetAttributeValue("href", null);
+                return href.StartsWith("http")
+                    ? href
+                    : $"https://www.amazon.com{href}";
             }
 
             return null;
         }
 
-        private string? GetReviewCount(HtmlNode node)
+        private string? GetImageUrl(HtmlNode node, List<string> selectors)
         {
-            List<string> selectors = _amazonSelectorOptions.Value.ReviewCount.ToList();
-            foreach (var selector in selectors)
-            {
-                var result = node.SelectSingleNode(selector);
-
-                if (result != null)
-                    return result.InnerText?.Trim();
-            }
+            var result = ExtractValue(node, selectors);
+            if (result != null)
+                return result.GetAttributeValue("src", null);
 
             return null;
         }
 
-        private string? GetProductUrl(HtmlNode node)
+        private string? GetIsPrime(HtmlNode node, List<string> selectors)
         {
-            List<string> selectors = _amazonSelectorOptions.Value.ProductURL.ToList();
-            foreach (var selector in selectors)
-            {
-                var result = node.SelectSingleNode(selector);
-
-                if (result != null)
-                {
-                    var href = result.GetAttributeValue("href", null);
-                    return href.StartsWith("http")
-                        ? href
-                        : $"https://www.amazon.com{href}";
-                }
-            }
-            return null;
-        }
-
-        private string? GetImageUrl(HtmlNode node)
-        {
-            //var result = extractValue(node, "MainProductImageURL");
-            //if (result != null)
-            //    return result.GetAttributeValue("src", null);
-
-            List<string> selectors = _amazonSelectorOptions.Value.MainProductImageURL.ToList();
-            foreach (var selector in selectors)
-            {
-                var result = node.SelectSingleNode(selector);
-
-                if (result != null)
-                    return result.GetAttributeValue("src", null);
-            }
+            var result = ExtractValue(node, selectors);
+            if (result != null)
+                return result.InnerText?.Trim();
 
             return null;
         }
+        #endregion
 
-        private HtmlNode? extractValue(HtmlNode node, string fieldName)
+        #region general
+        private HtmlNode? ExtractValue(HtmlNode node, List<string> selectors)
         {
-            List<string> selectors = _amazonSelectorOptions.Value.MainProductImageURL.ToList();
             foreach (var selector in selectors)
             {
                 var result = node.SelectSingleNode(selector);
@@ -325,6 +193,174 @@ namespace AmazonScraper.Infrastructure.Scraper
             }
             return null;
         }
+
+        private List<HtmlNode>? ExtractManyValue(HtmlNode node, List<string> selectors)
+        {
+            foreach (var selector in selectors)
+            {
+                var result = node.SelectNodes(selector);
+
+                if (result != null)
+                    return result.ToList();
+            }
+            return null;
+        }
+
+        private HtmlDocument getHtmlDoc(string htmlContent)
+        {
+            // 1. Load HTML into HtmlAgilityPack Document
+            var htmlDoc = new HtmlDocument();
+            htmlDoc.LoadHtml(htmlContent);
+            return htmlDoc;
+        }
+        #endregion
+
+        #region product details
+        public async Task<Product> ScrapeAmazonProductbyASINAsync(string asin)
+        {
+            try
+            {
+                // 1. get url
+                string url = getProductDetailsUrl(asin);
+                // 2. get data from amazon
+                string htmlContent = await _clientHandler.getHTMLData(url);
+                // 3. get html Document
+                var htmlDoc = getHtmlDoc(htmlContent);
+                // 3. Extract data fields safely using CSS/XPath selectors
+                Product data = extractProductDetailsDataFields(htmlDoc);
+                return data;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error occurred: {ex.Message}");
+                return null;
+            }
+        }
+
+        private string getProductDetailsUrl(string asin)
+        {
+            if (string.IsNullOrWhiteSpace(asin))
+                return null;
+            string url = _amazonURL.Value.ProductDetailsURL + asin;
+            return url;
+        }
+
+        private Product extractProductDetailsDataFields(HtmlDocument htmlDoc)
+        {
+            var product = new Product();
+            var node = htmlDoc.DocumentNode;
+
+            if (node == null)
+                return null;
+
+            (decimal?, string?) priceTuple = GetPrice(node, _amazonSelectorOptions.Value.Price);
+
+            product = new Product
+            {
+                ASIN = GetAsin(node, _amazonSelectorOptions.Value.ASIN),
+                Title = GetTitle(node, _amazonSelectorOptions.Value.Title),
+                OriginalPrice = priceTuple.Item1 ?? 0,
+                Price = priceTuple.Item1 ?? 0,
+                Currency = priceTuple.Item2,
+                Rating = GetRating(node, _amazonSelectorOptions.Value.Rating),
+                TotalReviews = GetReviewCount(node, _amazonSelectorOptions.Value.ReviewCount),
+                URL = GetProductUrl(node, _amazonSelectorOptions.Value.ProductURL),
+                Image = GetImageUrl(node, _amazonSelectorOptions.Value.MainProductImageURL),
+                IsPrime = GetIsPrime(node, _amazonSelectorOptions.Value.IsPrime),
+                Brand = GetBrand(node, _amazonSelectorOptions.Value.brand),
+                Availability = GetAvailability(node, _amazonSelectorOptions.Value.Availability),
+                Description = GetDescription(node, _amazonSelectorOptions.Value.Description),
+                Features = GetFeatureBullets(node, _amazonSelectorOptions.Value.FeatureBullets),
+                Categories = GetCategories(node, _amazonSelectorOptions.Value.Categories),
+                Images = GetImages(node, _amazonSelectorOptions.Value.AllProductImages),
+                Specifications = GetProductSpecifications(node, _amazonSelectorOptions.Value.ProductSpecifications)
+            };
+
+            return product;
+        }
+
+        private string? GetAsin(HtmlNode node, List<string> selectors)
+        {
+            var result = ExtractValue(node, selectors);
+            if (result != null)
+                return result.InnerText?.Trim();
+
+            return null;
+        }
+        private string? GetBrand(HtmlNode node, List<string> selectors)
+        {
+            var result = ExtractValue(node, selectors);
+            if (result != null)
+                return result.InnerText?.Trim();
+
+            return null;
+        }
+        private string? GetAvailability(HtmlNode node, List<string> selectors)
+        {
+            var result = ExtractValue(node, selectors);
+            if (result != null)
+                return result.InnerText?.Trim();
+
+            return null;
+        }
+        private string? GetDescription(HtmlNode node, List<string> selectors)
+        {
+            var result = ExtractValue(node, selectors);
+            if (result != null)
+                return result.InnerText?.Trim();
+
+            return null;
+        }
+        private List<string>? GetFeatureBullets(HtmlNode node, List<string> selectors)
+        {
+            var result = ExtractManyValue(node, selectors);
+            if (result != null)
+                return result?.Select(x => x.InnerText.Trim())
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .ToList();
+
+            return null;
+        }
+        private List<string>? GetCategories(HtmlNode node, List<string> selectors)
+        {
+            var result = ExtractManyValue(node, selectors);
+            if (result != null)
+                return result?.Select(x => x.InnerText.Trim())
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .ToList();
+
+            return null;
+        }
+        private List<string>? GetImages(HtmlNode node, List<string> selectors)
+        {
+            var result = ExtractManyValue(node, selectors);
+            if (result != null)
+                return result?.Select(x => x.GetAttributeValue("src", ""))
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .ToList();
+
+            return null;
+        }
+        private Dictionary<string, string>? GetProductSpecifications(HtmlNode node, List<string> selectors)
+        {
+            var rows = ExtractManyValue(node, selectors);
+            var specs = new Dictionary<string, string>();
+
+            if (rows != null)
+            {
+                foreach (var row in rows)
+                {
+                    var key = row.SelectSingleNode("./th")?.InnerText.Trim();
+                    var value = row.SelectSingleNode("./td")?.InnerText.Trim();
+
+                    if (!string.IsNullOrWhiteSpace(key))
+                        specs[key] = value;
+                }
+            }
+            return specs;
+        }
+
+        #endregion
     }
 
 }
