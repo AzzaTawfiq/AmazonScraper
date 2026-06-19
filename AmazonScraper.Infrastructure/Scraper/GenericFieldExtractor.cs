@@ -7,9 +7,7 @@ namespace AmazonScraper.Infrastructure.Scraper
 {
     public class GenericFieldExtractor : IGenericFieldExtractor
     {
-        public HtmlNode? Extract(
-        HtmlNode node,
-        IEnumerable<string> selectors)
+        public HtmlNode? Extract(HtmlNode node, IEnumerable<string> selectors)
         {
             foreach (var selector in selectors)
             {
@@ -17,7 +15,7 @@ namespace AmazonScraper.Infrastructure.Scraper
                     .SelectSingleNode(selector);
 
                 if (result != null)
-                    return node;
+                    return result;
             }
 
             return null;
@@ -43,7 +41,7 @@ namespace AmazonScraper.Infrastructure.Scraper
                     .SelectSingleNode(selector);
 
                 if (result != null)
-                    return node.InnerText.Trim();
+                    return result.InnerText.Trim();
             }
 
             return null;
