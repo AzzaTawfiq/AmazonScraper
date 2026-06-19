@@ -28,10 +28,16 @@ namespace AmazonScraper.Api.Controllers
             return await _productService.GetProductsbyPageAsync(query, page, refresh);
         }
 
-        [HttpGet("getProductbyPageAsync")]
+        [HttpGet("getProductbyASIN")]
         public async Task<Product> GetProductbyPageAsync([FromQuery] string asin)
         {
             return await _productService.GetProductbyASINAsync(asin);
+        }
+
+        [HttpGet("{asin}/offers")]
+        public async Task<List<ProductOffers>> GetProductOffersAsync(string asin)
+        {
+            return await _productService.GetProductOffersAsync(asin);
         }
     }
 }

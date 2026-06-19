@@ -27,5 +27,7 @@ namespace AmazonScraper.Shared.Common
         public List<string> Availability { get; set; } = [];
         public List<string> Description { get; set; } = [];
 
+        public string OfferDataComponent { get; set; } = string.Empty;
+
     }
 }
