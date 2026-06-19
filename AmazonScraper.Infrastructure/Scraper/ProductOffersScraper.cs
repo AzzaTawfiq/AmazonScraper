@@ -10,7 +10,7 @@ namespace AmazonScraper.Infrastructure.Scraper
 {
     public class ProductOffersScraper : IScrapingStrategy<List<ProductOffers>>
     {
-
+        public string Name => "ProductOffersScraper";
         private readonly IOptions<AmazonSelectorOptions> _amazonSelectorOptions;
         private readonly IGenericFieldExtractor _genericFieldExtractor;
 

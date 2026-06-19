@@ -8,6 +8,6 @@ namespace AmazonScraper.Core.Interfaces
 {
     public interface IClientHandler
     {
-        Task<string> getHTMLData(string url);
+        Task<string> GetHTMLData(string url);
     }
 }

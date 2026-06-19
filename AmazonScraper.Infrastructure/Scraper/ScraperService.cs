@@ -18,19 +18,19 @@ namespace AmazonScraper.Infrastructure.Scraper
 
         public async Task<T> ScrapeDataAsync(string url, string scraperName)
         {
-            var html = await _clientHandler.getHTMLData(url);
+            var html = await _clientHandler.GetHTMLData(url);
 
             var document = GetHtmlDoc(html);
 
             // Dynamically find the correct strategy based on type name or an internal identifier
-            var strategy = _strategies.FirstOrDefault(s => s.GetType().Name.StartsWith(scraperName));
+            var strategy = _strategies.FirstOrDefault(s => s.Name == scraperName);
 
             if (strategy != null)
                 return strategy.ScrapePage(document);
 
             //await Task.Delay(Random.Shared.Next(3000, 5000));
 
-            return default(T);
+            throw new InvalidOperationException($"Strategy '{scraperName}' not found.");//default(T);
         }
 
         private HtmlDocument GetHtmlDoc(string htmlContent)

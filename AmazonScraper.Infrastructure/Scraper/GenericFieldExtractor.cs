@@ -85,7 +85,15 @@ namespace AmazonScraper.Infrastructure.Scraper
         {
             var result = Extract(node, selectors);
             if (result != null)
+            {
                 return result.GetAttributeValue("src", null);
+                //if (src != null)
+                //{
+                //    return src.StartsWith("http")
+                //            ? src
+                //            : $"https://www.amazon.com{src}";
+                //}
+            }
 
             return null;
         }

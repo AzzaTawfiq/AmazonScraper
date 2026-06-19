@@ -19,7 +19,7 @@ namespace AmazonScraper.Infrastructure.Handlers
             _httpClient = httpClient;
         }
 
-        public async Task<string> getHTMLData(string url)
+        public async Task<string> GetHTMLData(string url)
         {
             //_httpClientHandler.AutomaticDecompression = System.Net.DecompressionMethods.GZip | System.Net.DecompressionMethods.Deflate;
 

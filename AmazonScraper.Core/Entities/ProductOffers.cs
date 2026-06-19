@@ -22,8 +22,8 @@ namespace AmazonScraper.Core.Entities
     public class Shipping
     {
         public decimal? Price { get; set; }
-        public decimal? IsFreeShipping { get; set; }
-        public decimal? IsPrime { get; set; }
-        public decimal? EstimatedDelivery { get; set; }
+        public string? IsFreeShipping { get; set; }
+        public string? IsPrime { get; set; }
+        public string? EstimatedDelivery { get; set; }
     }
 }

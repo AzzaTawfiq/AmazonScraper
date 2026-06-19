@@ -1,0 +1,47 @@
+// data from the following url
+// "https://amazon.com"
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+    <style>
+        body {
+            font-family: "Arial";
+        }
+    </style>
+    <script type="text/javascript">
+    window.awsWafCookieDomainList = [];
+    window.gokuProps = {
+"key":"AQIDAHjcYu/GjX+QlghicBgQ/7bFaQZ+m5FKCMDnO+vTbNg96AFcCJN6mjMSwQbZk9pGWRZHAAAAfjB8BgkqhkiG9w0BBwagbzBtAgEAMGgGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMt22SWFwRUA7nHW5pAgEQgDuJqWHKYQZLvkF1gIVdRuog7Dgba1/XRf60BCrECwpcf4zP1ngMIYSPNjRsP8PgANusV3A7gRO56Yw+PQ==",
+          "iv":"EkQgRAEePgAAB38T",
+          "context":"/wFgnHmqX7KyIXW3KN5kUjiCV1yn4XCgyGCsUeFKzB8mHwR664oRcNqDvIm9QXqhqMb5ijS2z+X0iJfLVqQyiSE/pinjhUj4TRMembJePS5soIL7shX2F50S0lL+mo2pZNtiqJLV036nhaGY/mpeNQYajTkN8km4ssYjKGBN6XAQmF6PGi4C79BwJShO5I3MQLQhuF+VsvkOF3PmrrlLX0iYkayOauj40Ngt+uYuU6pjktaKFLDdT7WbVBuUKPaTNtYVOw9kM6jii6v41RyoSgFqNM37jTslE5Pw7dgdWRj022ewmktCPh2cDX8ntL0Vtn82ZsFB0lUNv0fuwE9GPRR3bWSAqYaxWaXBG9klDigY1DlVY24q/pY5OP88sSvgv97ZA7Kx"
+};
+    </script>
+    <script src="https://1c5c1ecf7303.535706ac.eu-west-1.token.awswaf.com/1c5c1ecf7303/d6a7a58005ec/04c5ab18cd2d/challenge.js"></script>
+</head>
+<body>
+    <div id="challenge-container"></div>
+    <script type="text/javascript">
+        AwsWafIntegration.saveReferrer();
+        AwsWafIntegration.checkForceRefresh().then((forceRefresh) => {
+            if (forceRefresh) {
+                AwsWafIntegration.forceRefreshToken().then(() => {
+                    window.location.reload(true);
+                });
+            } else {
+                AwsWafIntegration.getToken().then(() => {
+                    window.location.reload(true);
+                });
+            }
+        });
+    </script>
+    <noscript>
+        <h1>JavaScript is disabled</h1>
+        In order to continue, we need to verify that you're not a robot.
+        This requires JavaScript. Enable JavaScript and then reload the page.
+    </noscript>
+</body>
+</html>
